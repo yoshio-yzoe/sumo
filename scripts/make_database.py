@@ -14,17 +14,24 @@ class Preparation:
 
     # 指定された場所、日、階級に基づいて試合情報を取得するメソッド
     def get_matches_by_basho_and_day_and_division(self, day, division):
-        # APIのURLを構築
         url = f'http://www.sumo-api.com/api/basho/{self.basho}/torikumi/{division}/{day}'
-        # APIリクエストを送信
-        response = requests.get(url)
-        # レスポンスが成功した場合、試合情報をJSON形式で取得し、'torikumi'キーの内容を返す
-        if response.status_code == 200:
-            data = response.json()
-            matches = data.get('torikumi')
-            return matches
-        else:
-            # レスポンスが失敗した場合、Noneを返す
+        try:
+            # タイムアウトを10秒に設定
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                matches = data.get('torikumi')
+                return matches
+            else:
+                print(f"Failed to fetch matches: HTTP {response.status_code}")
+                return None
+        except requests.exceptions.Timeout as e:
+            # タイムアウトエラーの場合の処理
+            print(f"Request timed out: {e}")
+            return None
+        except requests.exceptions.RequestException as e:
+            # その他のリクエスト関連のエラー
+            print(f"Request failed: {e}")
             return None
 
     # 取得した試合情報をCSVに保存するメソッド
@@ -71,7 +78,7 @@ def generate_basho_list(start_year, end_year):
 # メイン処理
 if __name__ == '__main__':
     # 1958年1月から2024年3月までのbashoリストを生成
-    basho_list = generate_basho_list(1958, 2024)
+    basho_list = generate_basho_list(1958, 1959)
     for basho in basho_list:
         prep = Preparation(basho)
         prep.record_all_matches()
