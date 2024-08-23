@@ -1,5 +1,6 @@
 import requests
 import csv
+import argparse
 
 # Preparationクラスの定義
 class Preparation:
@@ -68,7 +69,8 @@ class Preparation:
                     self.save_matches_to_csv(matches, filename, division)
 # 年月を生成するための関数を定義
 def generate_basho_list(start_year, end_year):
-    months = ['01', '03', '05', '07', '09', '11']
+    #months = ['01', '03', '05', '07', '09', '11']
+    months = ['03', '05', '07']
     basho_list = []
     for year in range(start_year, end_year + 1):
         for month in months:
@@ -77,8 +79,18 @@ def generate_basho_list(start_year, end_year):
 
 # メイン処理
 if __name__ == '__main__':
-    # 1958年1月から2024年3月までのbashoリストを生成
-    basho_list = generate_basho_list(1958, 1959)
+    # コマンドライン引数のパーサーを設定
+    parser = argparse.ArgumentParser(description='Generate and process sumo tournament (basho) data.')
+    parser.add_argument('start_year', type=int, help='Start year for basho generation')
+    parser.add_argument('end_year', type=int, help='End year for basho generation')
+
+    # コマンドライン引数を解析
+    args = parser.parse_args()
+
+    # 指定された年範囲でbashoリストを生成
+    basho_list = generate_basho_list(args.start_year, args.end_year)
+
+    # 各bashoに対してデータを処理
     for basho in basho_list:
         prep = Preparation(basho)
         prep.record_all_matches()

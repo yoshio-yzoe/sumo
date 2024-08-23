@@ -1,6 +1,3 @@
-# 試合データからレーティングのデータベースを作成
-# 序の口まで全ての取り組みデータがあるもののみ対象
-
 import os
 import csv
 import math
@@ -83,8 +80,8 @@ def has_jonokuchi(file_path):
 
 
 def main():
-    input_dir = '../csvs'
-    output_dir = '../csvs/rating'
+    input_dir = 'csvs'
+    output_dir = 'csvs/rating'
     os.makedirs(output_dir, exist_ok=True)
 
     ratings = defaultdict(lambda: defaultdict(lambda: {'rating': 1500, 'shikona': ''}))
