@@ -1,23 +1,19 @@
 import requests
 import csv
 import argparse
+from datetime import datetime
 
-# Preparationクラスの定義
-class Preparation:
-    def __init__(self, basho):
-        # 初期化メソッド。basho (場所) と階級のリストを保持。
-        self.basho = basho
+class SumoDataManager:
+    def __init__(self):
         self.divisions = [
             'Makuuchi', 'Juryo', 'Makushita',
             'Sandanme', 'Jonidan', 'Jonokuchi',
             'Maezumo', 'Others'
         ]
 
-    # 指定された場所、日、階級に基づいて試合情報を取得するメソッド
-    def get_matches_by_basho_and_day_and_division(self, day, division):
-        url = f'http://www.sumo-api.com/api/basho/{self.basho}/torikumi/{division}/{day}'
+    def get_matches_by_basho_and_day_and_division(self, basho, day, division):
+        url = f'http://www.sumo-api.com/api/basho/{basho}/torikumi/{division}/{day}'
         try:
-            # タイムアウトを10秒に設定
             response = requests.get(url, timeout=10)
             if response.status_code == 200:
                 data = response.json()
@@ -26,71 +22,45 @@ class Preparation:
             else:
                 print(f"Failed to fetch matches: HTTP {response.status_code}")
                 return None
-        except requests.exceptions.Timeout as e:
-            # タイムアウトエラーの場合の処理
-            print(f"Request timed out: {e}")
-            return None
         except requests.exceptions.RequestException as e:
-            # その他のリクエスト関連のエラー
             print(f"Request failed: {e}")
             return None
 
-    # 取得した試合情報をCSVに保存するメソッド
     def save_matches_to_csv(self, matches, filename, division):
-        # CSVファイルを追記モードで開く
         with open(filename, mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-            # 各試合について行を書き込む
             for match in matches:
                 writer.writerow([
-                    match.get('id'), match.get('bashoId'), division,  # 各行に階級を含める
+                    match.get('id'), match.get('bashoId'), division,
                     match.get('day'), match.get('matchNo'), match.get('eastId'),
                     match.get('eastShikona'), match.get('eastRank'), match.get('westId'),
                     match.get('westShikona'), match.get('westRank'), match.get('kimarite'),
                     match.get('winnerId'), match.get('winnerEn'), match.get('winnerJp')
                 ])
 
-    # 全階級、全日にわたって試合情報を取得し、CSVに保存するメソッド
-    def record_all_matches(self):
-        # CSVファイル名の設定（保存場所を相対パスで指定）
-        filename = f'../csvs/matches_{self.basho}.csv'
-        # CSVファイルを新規作成し、ヘッダー行を書き込む
+    def record_all_matches(self, year, month):
+        basho = f'{year}{month:02d}'
+        filename = f'../csvs/matches_{basho}.csv'
         with open(filename, 'w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             writer.writerow(['ID', 'BashoId', 'Kubun', 'Day', 'MatchNo', 'EastId', 'EastShikona', 'EastRank', 'WestId',
                              'WestShikona', 'WestRank', 'Kimarite', 'WinnerId', 'WinnerEn', 'WinnerJp'])
 
-        # 全階級、全日にわたって試合情報を取得し、CSVに保存
-        days = range(1, 16)
         for division in self.divisions:
-            for day in days:
-                matches = self.get_matches_by_basho_and_day_and_division(day, division)
+            for day in range(1, 16):
+                matches = self.get_matches_by_basho_and_day_and_division(basho, day, division)
                 if matches:
                     self.save_matches_to_csv(matches, filename, division)
-# 年月を生成するための関数を定義
-def generate_basho_list(start_year, end_year):
-    #months = ['01', '03', '05', '07', '09', '11']
-    months = ['03', '05', '07']
-    basho_list = []
-    for year in range(start_year, end_year + 1):
-        for month in months:
-            basho_list.append(f'{year}{month}')
-    return basho_list
 
-# メイン処理
-if __name__ == '__main__':
-    # コマンドライン引数のパーサーを設定
+def main():
     parser = argparse.ArgumentParser(description='Generate and process sumo tournament (basho) data.')
-    parser.add_argument('start_year', type=int, help='Start year for basho generation')
-    parser.add_argument('end_year', type=int, help='End year for basho generation')
+    parser.add_argument('year', type=int, help='Year of the basho')
+    parser.add_argument('month', type=int, choices=[1, 3, 5, 7, 9, 11], help='Month of the basho')
 
-    # コマンドライン引数を解析
     args = parser.parse_args()
 
-    # 指定された年範囲でbashoリストを生成
-    basho_list = generate_basho_list(args.start_year, args.end_year)
+    manager = SumoDataManager()
+    manager.record_all_matches(args.year, args.month)
 
-    # 各bashoに対してデータを処理
-    for basho in basho_list:
-        prep = Preparation(basho)
-        prep.record_all_matches()
+if __name__ == '__main__':
+    main()
