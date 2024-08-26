@@ -101,6 +101,7 @@ def has_jonokuchi(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         return any(row['Kubun'] == 'Jonokuchi' for row in reader)
+
 def main():
     parser = argparse.ArgumentParser(description='Calculate Elo ratings for sumo wrestlers.')
     parser.add_argument('--year', type=int, help='Year of the basho (optional)')

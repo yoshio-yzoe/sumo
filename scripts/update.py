@@ -5,6 +5,15 @@ from datetime import datetime, timedelta
 
 API_BASE_URL = "http://www.sumo-api.com/api"
 
+def run_rikishi_nayose():
+    print("Running rikishi_nayose.py...")
+    try:
+        result = subprocess.run(["python", "rikishi_nayose.py"], check=True, capture_output=True, text=True)
+        print("rikishi_nayose.py completed successfully.")
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running rikishi_nayose.py: {e}")
+        print("Continuing with the update process...")
 
 def get_latest_basho():
     current_date = datetime.now()
@@ -29,7 +38,6 @@ def get_latest_basho():
 
     raise Exception("Failed to find a valid basho in the last 6 months")
 
-
 def get_existing_bashos(csv_dir):
     existing_bashos = []
     for filename in os.listdir(csv_dir):
@@ -39,8 +47,10 @@ def get_existing_bashos(csv_dir):
             existing_bashos.append(datetime(year, month, 1))
     return sorted(existing_bashos)
 
-
 def main():
+    # First, run rikishi_nayose.py
+    run_rikishi_nayose()
+
     csv_dir = "../csvs"
     os.makedirs(csv_dir, exist_ok=True)
 
@@ -75,7 +85,6 @@ def main():
         current_date = current_date.replace(day=1)
 
     print("Update completed successfully.")
-
 
 if __name__ == "__main__":
     main()
