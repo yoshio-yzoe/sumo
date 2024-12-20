@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>力士データベース</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>力士データベース</h1>
+    <nav>
+        <button id="ratings-page-btn">レーティング</button>
+        <button id="matches-page-btn">対戦成績</button>
+        <button id="rikishi-page-btn">力士詳細</button>
+    </nav>
+    
+    <div id="ratings-page" class="page">
+        <h2>レーティング</h2>
+        <div class="selector">
+            <label for="ratings-basho-select">場所を選択:</label>
+            <select id="ratings-basho-select">
+                <option value="">--選択してください--</option>
+            </select>
+        </div>
+        <div id="ratings-table-container">
+            <table id="ratings-table">
+                <thead>
+                    <tr>
+                        <th>順位</th>
+                        <th>力士名</th>
+                        <th>レーティング</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- レーティングデータが挿入されます -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div id="matches-page" class="page" style="display:none;">
+        <h2>対戦成績</h2>
+        <div class="selector">
+            <label for="matches-basho-select">場所を選択:</label>
+            <select id="matches-basho-select">
+                <option value="">--選択してください--</option>
+            </select>
+            <label for="matches-day-select">日を選択:</label>
+            <select id="matches-day-select">
+                <option value="">--選択してください--</option>
+            </select>
+        </div>
+        <div id="matches-table-container">
+            <table id="matches-table">
+                <thead>
+                    <tr>
+                        <th>試合番号</th>
+                        <th>東力士</th>
+                        <th>西力士</th>
+                        <th>決まり手</th>
+                        <th>勝者</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 試合データが挿入されます -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div id="rikishi-page" class="page" style="display:none;">
+        <h2>力士詳細</h2>
+        <div class="selector">
+            <label for="rikishi-input">力士を入力:</label>
+            <input type="text" id="rikishi-input" placeholder="力士名を入力">
+            <button id="rikishi-search-btn">検索</button>
+        </div>
+        <div id="rikishi-detail">
+            <canvas id="rikishi-rating-chart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart.js の読み込み -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- カスタムスクリプトの読み込み -->
+    <script src="script.js"></script>
+</body>
+</html>
